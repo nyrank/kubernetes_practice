@@ -1,0 +1,58 @@
+kubectl cluster-info
+kubectl get nodes
+# shows currently used nodes
+kubectl run kubernetes-bootcamp --image=gcr.io/google-samples/kubernetes-bootcamp:v1 --port=8080
+# deploys this image using the 8080 port
+kubectl get deployments
+# shows the current deployments
+kubectl proxy
+# provides a connection between the online host and the cluster
+export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+echo Name of the Pod: $POD_NAME
+# Assigns a name to the pod to an environment variable
+curl http://localhost:8001/api/v1/namespaces/default/pods/$POD_NAME/proxy/
+# provides information about the requested pod
+kubectl get - list resources
+kubectl describe - show detailed information about a resource
+kubectl logs - print the logs from a container in a pod
+kubectl exec - execute a command on a container in a pod
+kubectl exec $POD_NAME bash
+# opens a terminal in the specified pod. Same behaviour as a container
+kubectl expose deployment/kubernetes-bootcamp --type="NodePort" --port 8080
+# Creates a service and exposes it to external traffic
+export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
+echo NODE_PORT=$NODE_PORT
+# Create an environment variable called NODE_PORT that has the value of the Node port assigned
+kubectl get pods -l run=kubernetes-bootcamp
+# Queries the list of pods to get the pods used by this label
+kubectl get services -l run=kubernetes-bootcamp
+# Queries the list of services to get the pods used by this label
+export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+echo Name of the Pod: $POD_NAME
+# Get pod name
+kubectl label pod $POD_NAME app=v1
+# Label the pod
+kubectl get pods -l app=v1
+# Can use the pod alias instead
+kubectl delete service -l run=kubernetes-bootcamp
+# Deletes the kubernetes-bootcamp service
+# The app will not be reachable from outside the cluster
+kubectl scale deployments/kubernetes-bootcamp --replicas=4
+# Launches 4 replicas of the desired pod
+kubectl get pods -o wide
+# Lists all pods
+kubectl describe deployments/kubernetes-bootcamp
+# Should list all replicas
+export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
+echo NODE_PORT=$NODE_PORT
+# Creates an env variable for the NODE_PORT
+curl $(minikube ip):$NODE_PORT
+# A different POD is hit with every request, this proves that the load balancing is working correctly
+kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v2
+# Notifies running pods to use a different version of the app. This command automatically rolls out and update on running pods
+kubectl rollout status deployments/kubernetes-bootcamp
+# The update can be confirmed also by running a rollout status command
+kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=gcr.io/google-samples/kubernetes-bootcamp:v10
+# Rolls out a new update with an unexistant image
+kubectl rollout undo deployments/kubernetes-bootcamp
+# Reverts the deployment to the previous known state of the image
