@@ -56,3 +56,158 @@ kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=gcr.io/goo
 # Rolls out a new update with an unexistant image
 kubectl rollout undo deployments/kubernetes-bootcamp
 # Reverts the deployment to the previous known state of the image
+
+Example of a POD in a yaml file:
+
+apiVersion: v1
+kind: Pod
+metadata:
+    name: my-app
+spec:
+    containers:
+    -   name: my-app
+        image: my-app
+    -   name: nginx-ssl
+        image: nginx
+        ports:
+        -   containerPort: 80
+        -   containerPort: 443
+
+#############################################
+# This file has to be uploaded to the master, then the master will create pods on the nodes of the cluster it's managing
+
+Deployment file:
+
+kind: Deployment #deployment resource
+apiVersion: v1.1
+metadata:
+    name: frontend  #deployment name
+spec:
+    replicas: 4 #replicas
+    selector:   #pod selector
+        role: web   #role web
+    template:
+        metadata:
+            name: web
+            labels: #pod label
+                role: web #role web
+        spec:
+            containers: #pods
+            - name: my-app
+              image: my-app
+            - name: nginx-ssl
+              image: nginx
+              ports:
+              - containerPort: 80
+              - containerPort: 443
+
+###############################################
+# A service assigns a fixed IP to your pod replicas and allows other pods or services to communicate with them
+
+Example of a Service file:
+
+kind: Service #resource
+apiVersion: v1
+metadata:
+    name: web-frontend
+spec:
+    ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+    selector: #pod selector
+        role: web
+    type: LoadBalancer
+
+###############################################
+
+kubectl create <volume> 
+# Creates a volume
+kubectl create -f pod.yml
+# Creates a volume according to the file specs
+# The volume is attached to the pod and made available to containers before they are brought online
+# Some volumes share the lifecycle of their pod
+minikube addons enable dashboard
+# Make the Kubernetes Dashboard available by deploying the following YAML definition. This should only be used on Katacoda.
+kubectl apply -f /opt/kubernetes-dashboard.yaml
+# Shows a dashboard
+# Should only use it in Katacoda.
+kubeadm init --token=102952.1a7dd4cc8d1f4cc5 --kubernetes-version $(kubeadm version -o short)
+# The command above will initialise the cluster with a known token to simplify the following steps.
+# To manage the Kubernetes cluster, the client configuration and certificates are required. This configuration is created when kubeadm initialises the cluster. The command copies the configuration to the users home directory and sets the environment variable for use with the CLI.
+sudo cp /etc/kubernetes/admin.conf $HOME/
+sudo chown $(id -u):$(id -g) $HOME/admin.conf
+export KUBECONFIG=$HOME/admin.conf
+########
+kubectl apply -f /opt/weave-kube
+# Weave will now deploy as a series of Pods on the cluster. The status of this can be viewed using the command 
+kubectl get pod -n kube-system
+#####
+kubeadm token list
+# Lists tokens
+kubeadm join --discovery-token-unsafe-skip-ca-verification --token=102952.1a7dd4cc8d1f4cc5 172.17.0.30:6443
+# Running this command on a node will make a node join a cluster skipping verification
+# In production, the token is provided by running: kubeadm init
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
+# Gets login token
+kubectl expose deployment http --external-ip="172.17.0.47" --port=8000 --target-port=80
+# This command exposes the CONTAINER port 80 on the HOST 8000 binding it to the EXTERNAL IP 172.17.0.47
+
+deployment.yaml:
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: webapp1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: webapp1
+    spec:
+      containers:
+      - name: webapp1
+        image: katacoda/docker-http-server:latest
+        ports:
+        - containerPort: 80
+
+#################################################
+# This file deploys an app called webapp1 using the docker image katacoda/docker-http-server:latest on the port 80
+kubectl create -f deployment.yaml
+# This command deploys it to the cluster
+kubectl get deployment
+# Verify it's created
+kubectl describe deployment webapp1
+# Get details about the deployment
+
+service.yaml:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp1-svc
+  labels:
+    app: webapp1
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    nodePort: 30080
+  selector:
+    app: webapp1
+
+######################################
+# This service selects all applications with the label webapp1
+# As multiple replicas, or instances, are deployed, they will be automatically load balanced based on this common label. The Service makes the application available via a NodePort.
+kubectl create -f service.yaml
+# This command deploys the service
+kubectl get svc
+# Verify it's running
+kubectl describe svc webapp1-svc
+# Get more information about the service
+# deployment.yaml is updated
+kubectl apply -f deployment.yaml
+# kubectl apply deploys the new file, creating the required replicas
+
