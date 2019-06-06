@@ -1,0 +1,17 @@
+---
+ apiVersion: v1
+ kind: Pod
+ metadata:
+   name: wp-db
+   labels:
+     app: web
+ spec:
+   containers:
+     - name: wp
+       image: wordpress:latest
+       ports:
+         - containerPort: 8089
+     - name: db
+       image: mysql:5.7
+#       ports:
+#        - containerPort: 88
