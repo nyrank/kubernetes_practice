@@ -1,0 +1,14 @@
+
+- hosts:  all
+  become: true
+  tasks:
+    - name: install dependencies
+      apt: 
+        name: ['aptitude', 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'gnupg2', 'pass']
+        update_cache: yes
+
+    - name: "APT - install 'docker-ce'"
+      apt:
+        name: "docker-ce"
+        update_cache: yes
+    
