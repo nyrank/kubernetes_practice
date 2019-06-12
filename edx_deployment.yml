@@ -19,3 +19,4 @@ spec:
         image: nginx:1.15.11
         ports:
         - containerPort: 80
+
