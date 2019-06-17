@@ -1,0 +1,6 @@
+kubectl run hello-minikube --image=gcr.io/google_containers/echoserver:1.4 --port=8080
+# Runs an image on the cluster, tags it as hello-minikube
+kubectl expose deployment hello-minikube --type=NodePort
+# Exposes the host machine 
+minikube service hello-minikube --url
+# Returns the url in which the deployment has been exposed
