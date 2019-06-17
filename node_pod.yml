@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nodehelloworld.example.com
+  labels:
+    app: helloworld
+spec:
+  containers:
+    - name: kubernetes-demo
+      image: lucasducau/docker-demo
+      ports:
+        - containerPort: 3000

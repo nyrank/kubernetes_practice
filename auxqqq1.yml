@@ -1,6 +1,23 @@
+:
 kubectl run hello-minikube --image=gcr.io/google_containers/echoserver:1.4 --port=8080
 # Runs an image on the cluster, tags it as hello-minikube
 kubectl expose deployment hello-minikube --type=NodePort
-# Exposes the host machine 
+# Exposes the host machine
 minikube service hello-minikube --url
 # Returns the url in which the deployment has been exposed
+kubectl get pod
+# Get information about all running pods
+kubectl describe pod <podname>
+# Describes 1 pod
+kubectl expose pod <podname> --port=444 --name=frontend
+# Expose the port of a pod (creates a new service)
+kubectl port-forward <podname> 8080
+# Port forward the exposed pod port to your local machine (kind of like docker mirroring)
+kubectl attach <podname> -i
+# Attaches to the pod
+kubectl exec <podname> -- command
+# Executes a command on the pod, recheck spacing
+kubectl label pods <podname> mylabel=test
+# Labels a pod
+kubectl run -i --tty busybox --image=busybox --restart=Never -- sh
+# Run a shell in a pod - very useful for debugging
