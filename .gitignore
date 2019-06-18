@@ -1,3 +1,4 @@
 *.log
 .remote-sync.json
 .vagrant/
+/docker-pc/.vagrant/
