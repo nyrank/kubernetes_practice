@@ -84,3 +84,89 @@ spec:
     - containerPort: 80
 
 ##################################
+
+$ kubectl rollout undo deployment mynginx --to-revision=1
+# This will create revision 3, an exact copy of revision 1
+$ kubectl set image deployment mynginx nginx=nginx:1.16-apline
+# Updates the deployment image to a different one.
+$ kubectl get deploy,rs,po -l app=mynginx
+# Lists everything about the mynginx deployment.
+
+
+Kubernetes API requests, Authentication, Authorization and Admission Control:
+
+  Authentication:
+    Logs in a user.
+  Authorization:
+    Authorizes the API requests added by the logged-in user.
+  Admission Control:
+    Software modules that can modify or reject the requests based on some additional checks, like a pre-set Quota.
+
+
+For authentication, Kubernetes uses different authentication modules:
+
+Client Certificates:
+To enable client certificate authentication, we need to reference a file containing one or more certificate authorities by passing the --client-ca-file=SOMEFILE option to the API server. The certificate authorities mentioned in the file would validate the client certificates presented to the API server. A demonstration video covering this topic is also available at the end of this chapter.
+Static Token File:
+We can pass a file containing pre-defined bearer tokens with the --token-auth-file=SOMEFILE option to the API server. Currently, these tokens would last indefinitely, and they cannot be changed without restarting the API server.
+Bootstrap Tokens:
+This feature is currently in beta status and is mostly used for bootstrapping a new Kubernetes cluster.
+Static Password File:
+It is similar to Static Token File. We can pass a file containing basic authentication details with the --basic-auth-file=SOMEFILE option. These credentials would last indefinitely, and passwords cannot be changed without restarting the API server.
+Service Account Tokens:
+This is an automatically enabled authenticator that uses signed bearer tokens to verify the requests. These tokens get attached to Pods using the ServiceAccount Admission Controller, which allows in-cluster processes to talk to the API server.
+OpenID Connect Tokens:
+OpenID Connect helps us connect with OAuth2 providers, such as Azure Active Directory, Salesforce, Google, etc., to offload the authentication to external services.
+Webhook Token Authentication:
+With Webhook-based authentication, verification of bearer tokens can be offloaded to a remote service.
+Authenticating Proxy:
+If we want to program additional authentication logic, we can use an authenticating proxy. 
+
+
+Attribute-Based Access Control (ABAC) Authorizer:
+# With the ABAC authorizer, Kubernetes grants access to API requests, which combine policies with attributes. In the following example, user student can only read Pods in the Namespace lfs158.
+# To enable the ABAC authorizer, we would need to start the API server with the --authorization-mode=ABAC option. We would also need to specify the authorization policy with --authorization-policy-file=PolicyFile.json. For more details, please review the Kubernetes documentation.
+{
+  "apiVersion": "abac.authorization.kubernetes.io/v1beta1",
+  "kind": "Policy",
+  "spec": {
+    "user": "student",
+    "namespace": "lfs158",
+    "resource": "pods",
+    "readonly": true
+  }
+}
+
+Example of role.yml:
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: lfs158
+  name: pod-reader
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+
+Example of role_binding.yml:
+
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pod-read-access
+  namespace: lfs158
+subjects:
+- kind: User
+  name: student
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+
+# Both role and role_binding have their cluster-wide versions, such as ClusterRoleBinding and ClusterRole. 
+
+To use admission controls, we must start the Kubernetes API server with the --enable-admission-plugins, which takes a comma-delimited, ordered list of controller names:
+--enable-admission-plugins=NamespaceLifecycle,ResourceQuota,PodSecurityPolicy,DefaultStorageClass
+
