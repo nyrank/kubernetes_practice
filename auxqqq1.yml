@@ -21,3 +21,26 @@ kubectl label pods <podname> mylabel=test
 # Labels a pod
 kubectl run -i --tty busybox --image=busybox --restart=Never -- sh
 # Run a shell in a pod - very useful for debugging
+kubectl get deployments
+# Get information on current deployments
+kubectl get rs
+# Get information about replica sets
+kubectl get pods --show-labels
+# Get pods and also show labels attached to those pods
+kubectl rollout status deployment/name-deployment
+# Get deployment status
+kubectl set image deployment/name-deployment k8s-demo=k8s-demo:2
+# Runs k8s-demo with the image label version 2
+kubectl edit deployment/name-deployment
+# Edit the deployment object
+kubectl rollout status deployment/name-deployment
+# Get the status of the rollout
+kubectl rollout history deployment/name-deployment
+# Get the rollout history
+kubectl rollout undo deployment/name-deployment
+# Rollback to previous version
+kubectl rollout status deployment/name-deployment --to-revision=n
+# Rollback to n version
+
+# By default services can only run between ports 30000-32767 
+# This behaviour can be changed by adding the --service-node-port-range= argument to the kube-apiserver (in the init scripts)
