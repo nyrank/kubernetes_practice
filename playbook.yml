@@ -1,0 +1,64 @@
+
+
+#FALTA STOPPEAR EL DOCKER, CORRER sudo dockerd -H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375 Y DESPUES ARRANCARLO DE NUEVO
+#falta hacer que la api de go se agarre los archivos desde local en vez de tener que usar el fork en github.globant del original
+#
+
+
+
+
+---
+##################################################
+# This standalone playbook uses Docker's official Ubuntu 18.04 repository
+# https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-18-04
+##################################################
+
+- hosts:  all
+  become: true
+#  vars:
+#    ansible_python_interpreter: "/usr/bin/env python3"
+
+  tasks:
+#  - name: apt-get update
+#    apt:
+#      update_cache: yes
+
+  - name: "APT - Add Docker GPG key"
+    apt_key:
+#      url: https://download.docker.com/linux/ubuntu/dists/bionic/stable/binary-amd64/Release.gpg
+#      url: https://download.docker.com/linux/ubuntu/gpg
+      file: /vagrant/gpg
+      state: present
+#      update_cache: key
+#  - name: add apt-key
+#    shell:
+
+  - name: "APT - Add Docker repository"
+    apt_repository:
+      repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+      #      wget -O - https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+      state: present
+      filename: docker
+
+  - name: "APT - install misc packages"
+    apt:
+      name: ['aptitude', 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'gnupg2', 'pass']
+      update_cache: yes
+
+
+  - name: "APT - install 'docker-ce'"
+    apt:
+      name: "docker-ce"
+      update_cache: yes
+
+  - name: "update docker-compose"
+    apt:
+      name: "docker-compose"
+      update_cache: yes
+      state: latest
+
+  - name: "allow the vagrant user to use docker"
+    shell:
+      usermod -aG docker vagrant
+    become: yes
+

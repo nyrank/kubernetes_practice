@@ -1,2 +1,3 @@
 *.log
 .remote-sync.json
+.vagrant/
