@@ -44,3 +44,13 @@ kubectl rollout status deployment/name-deployment --to-revision=n
 
 # By default services can only run between ports 30000-32767 
 # This behaviour can be changed by adding the --service-node-port-range= argument to the kube-apiserver (in the init scripts)
+
+Secrets:
+
+echo -n "user" > ./user.txt
+echo -n "pw" > ./pw.txt
+kubectl create secret generic db-user-pw --from-file=./user.txt --from-file=./pw.txt
+# Creates a secret called db-user-pw from 2 files
+
+kubectl create secret generic ssl-certificate --from-file=ssh-privatekey=~/.ssh/id_rsa --ssl-cert-=ssl-cert=mysslcert.crt
+# Creates a SSH key or a SSL certificate
