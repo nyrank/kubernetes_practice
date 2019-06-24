@@ -54,3 +54,5 @@ kubectl create secret generic db-user-pw --from-file=./user.txt --from-file=./pw
 
 kubectl create secret generic ssl-certificate --from-file=ssh-privatekey=~/.ssh/id_rsa --ssl-cert-=ssl-cert=mysslcert.crt
 # Creates a SSH key or a SSL certificate
+
+

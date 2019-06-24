@@ -1,0 +1,18 @@
+apiVersion: settings.k8s.io/v1alpha1 # This might need to be changed
+kind: PodPreset
+metadata:
+  name: share-credential
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+  env:
+    - name: MY_SECRET
+      value: "123456"
+  volumeMounts:
+    - mountPath: /share
+      name: share-volume
+  volumes:
+    - name: share-volume
+      emptyDir: {}
+
