@@ -16,3 +16,4 @@ spec:
         image: wardviaene/k8s-demo
         ports:
         - containerPort: 3000
+        
