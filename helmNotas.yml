@@ -1,0 +1,14 @@
+helm init
+# Install Tiller on the cluster
+helm reset
+# Removes Tiller from the cluster
+helm install
+# Installs a Helm chart
+helm search
+# Search for a chart
+helm list
+# List releases (installed charts)
+helm upgrade
+# Upgrade a release
+helm rollback
+# Rollback a release to the previous version
